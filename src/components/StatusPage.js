@@ -1,10 +1,20 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Switch, Image } from 'react-native';
 
 import { signOutUser } from '../auth';
 import { addHistory, updateUserState } from '../database';
 
 const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
+  const [link, setLink] = useState('');
+  const [loadStatusPage, setLoadStatusPage] = useState(true);
+
+  //link generating
+  const generateImage = async () => {
+    const urlString = 'https://inspirobot.me/api?generate=true';
+    const response = await fetch(urlString);
+    setLink(await response.text());
+  };
+
   const handleLogout = async () => {
     await signOutUser();
     setUserData(null);
@@ -17,12 +27,16 @@ const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
     } else {
       newState = 'in';
     }
+    generateImage();
     setUserData({ ...userData, currentState: newState });
     updateUserState(userData.email, newState);
     addHistory(userData.email, newState);
   };
+  useEffect(() => {
+    generateImage().then(() => setLoadStatusPage(false));
+  }, []);
 
-  return (
+  return loadStatusPage ? null : (
     <View style={styles.container}>
       <View style={styles.logoutSection}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -43,6 +57,9 @@ const StatusPage = ({ navigation: { navigate }, userData, setUserData }) => {
       <TouchableOpacity onPress={() => navigate('Napló')} style={[styles.button, styles.shadow]}>
         <Text style={styles.buttonText}>Napló megtekintése</Text>
       </TouchableOpacity>
+      <View>
+        <Image style={styles.image} source={{ uri: link }} />
+      </View>
     </View>
   );
 };
@@ -96,6 +113,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
+  },
+  image: {
+    width: 400,
+    height: 400,
+    resizeMode: 'contain',
   },
 });
 
