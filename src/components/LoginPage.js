@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-import { signIn, signUp } from '../auth';
+import { signIn, signUp, resetPassword } from '../auth';
 import { getUserDataByEmail, createUserData } from '../database';
 
 const LoginPage = ({ setUserData }) => {
@@ -43,6 +43,18 @@ const LoginPage = ({ setUserData }) => {
       };
       await createUserData(initialUserData);
       setUserData(initialUserData);
+    }
+  };
+
+  //Password reset
+  const reset = async () => {
+    console.log('Password reset...');
+    if (email === '') {
+      window.alert('Töltsd ki az email címedet majd nyomd meg újra ezt a gombot');
+    } else if (!email.match(/\S+@\S+\.\S+/)) {
+      window.alert('Email cím nem megfelelő formátumú');
+    } else {
+      await resetPassword(email);
     }
   };
 
@@ -107,6 +119,12 @@ const LoginPage = ({ setUserData }) => {
               onChangeText={setPasswordConfirm}
             />
           )}
+          {!isSignUpActive && (
+            <TouchableOpacity onPress={reset}>
+              <Text style={[styles.passwordReminder]}>Elfelejtett jelszó</Text>
+            </TouchableOpacity>
+          )}
+
           {isSignUpActive ? (
             <Button title="Regisztráció" onPress={register} />
           ) : (
@@ -177,6 +195,12 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: '#ffffff',
+  },
+  passwordReminder: {
+    textAlign: 'right',
+    fontStyle: 'italic',
+    fontSize: 12,
+    paddingBottom: 20,
   },
 });
 
