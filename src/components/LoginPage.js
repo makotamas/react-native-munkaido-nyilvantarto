@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   Button,
+  // eslint-disable-next-line import/namespace
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -30,15 +31,19 @@ const LoginPage = ({ setUserData }) => {
 
   const register = async () => {
     console.log('registering...');
-    await signUp(email, password);
-    const initialUserData = {
-      name: userName,
-      email: email.toLowerCase(),
-      currentState: 'out',
-      // history: [],
-    };
-    await createUserData(initialUserData);
-    setUserData(initialUserData);
+    if (password !== passwordConfirm) {
+      window.alert('A jelszavak nem egyeznek!');
+    } else {
+      await signUp(email, password);
+      const initialUserData = {
+        name: userName,
+        email: email.toLowerCase(),
+        currentState: 'out',
+        // history: [],
+      };
+      await createUserData(initialUserData);
+      setUserData(initialUserData);
+    }
   };
 
   return (
